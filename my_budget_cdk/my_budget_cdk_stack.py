@@ -1,19 +1,41 @@
 from aws_cdk import (
-    # Duration,
     Stack,
-    # aws_sqs as sqs,
+    aws_budgets as budgets
 )
 from constructs import Construct
+
 
 class MyBudgetCdkStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # The code that defines your stack goes here
+        budgets.CfnBudget(
+            self, "MyBudget",
+            budget={
+                "budgetType": "COST",
+                "timeUnit": "MONTHLY",
+                "budgetLimit": {
+                    "amount": 5,
+                    "unit": "USD"
+                },
+                "budgetName": "MyDevOpsBudget"
+            },
+            notifications_with_subscribers=[
+                {
+                    "notification": {
+                        "notificationType": "ACTUAL",
+                        "comparisonOperator": "GREATER_THAN",
+                        "threshold": 80,
+                        "thresholdType": "PERCENTAGE"
+                    },
+                    "subscribers": [
+                        {
+                            "subscriptionType": "EMAIL",
+                            "address": "devops@gmail.com"
+                        }
+                    ]
+                }
+            ]
+        )
 
-        # example resource
-        # queue = sqs.Queue(
-        #     self, "MyBudgetCdkQueue",
-        #     visibility_timeout=Duration.seconds(300),
-        # )
